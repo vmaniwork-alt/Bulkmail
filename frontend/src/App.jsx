@@ -57,39 +57,91 @@ function App() {
 
   return (
     <>
-     <div>
-      <div className='bg-blue-950 text-white text-center'>
-        <h1 className="text-2xl font-medium px-5 py-3">BulkMail</h1>
+    <div className="bg-gradient-to-b  from-[#cfe8f3] via-[#d7e6f2] to-[#e6dff2]  min-h-screen">
+      <div className="flex justify-start mx-36 items-center p-5">
+      <div className=' text-indigo-900 '>
+        <h1 className="text-6xl font-bold px-5 py-3">BulkMail</h1>
       </div>
-       <div className='bg-blue-800 text-white text-center'>
+       <div className=' text-indigo-900 text-center items-center'>
         <h1 className="text-xl font-medium px-5 py-3">We can help your bussiness we can send multiple emails at onces</h1>
       </div>
-      <div className='bg-blue-600 text-white text-center'>
+       </div>
+     
+      <div className=" flex flex-col items-center text-black px-5 py-6 mt-6">
+        <textarea onChange={handleClick} value={msg} className="w-[80%] h-32 py-2 
+        focus:outline-none focus:ring-2  focus:ring-indigo-500
+         hover:border-indigo-700 focus:border-indigo-600 border-none 
+        shadow-lg px-3 rounded-lg border" 
+        placeholder="Enter the Email Text...."></textarea>
+         <div >
+           <div className='text-gray-600 text-center'>
         <h1 className="text-xl font-medium px-5 py-3">Drag and Drop</h1>
       </div>
-      <div className="bg-blue-400 flex flex-col items-center text-black px-5 py-3">
-        <textarea onChange={handleClick} value={msg} className="w-[80%] h-32 py-2 outline-none px-3 rounded-md border border-black" placeholder="Enter the Email Text...."></textarea>
-         <div >
-        <input onChange={handleChange} type="file" className="px-2 py-2 border-4 border-dotted mt-3 mb-5"></input>
-       
+      <div className="bg-white w-[550px] p-6 rounded-xl shadow-lg">
+
+  {/* Drag & Drop Box */}
+  <label
+    htmlFor="fileUpload"
+    className="flex flex-col items-center justify-center
+               h-[170px] border-2 border-dashed border-blue-400
+               rounded-xl cursor-pointer
+               hover:border-blue-600 hover:bg-blue-50
+               transition-all duration-200"
+  >
+    <input
+      id="fileUpload"
+      type="file"
+      onChange={handleChange}
+      className="hidden"
+      accept=".csv,.xlsx,.txt"
+    />
+
+    <span className="text-blue-500 text-4xl">☁️</span>
+    <p className="text-slate-700 font-medium mt-2">
+      Drag and Drop Your File Here
+    </p>
+    <p className="text-slate-400 text-sm">
+      or click to browse
+    </p>
+  </label>
+  <div className="flex items-center mt-3 justify-evenly">
+   
+  <p className="text-slate-600 text-sm ">
+    Total Emails in the File : <span className="font-semibold">{emailList.length}</span>
+
+  </p>
+  <p className="text-xs text-red-400">Note:<span className="text-gray-400 px-1">Support Excel Sheet Only </span> </p>
+
+  </div>
+
+  
+
+  {/* Send Button */}
+  <button
+    onClick={handleSend}
+    disabled={status}
+    className="mt-4 w-full bg-blue-950 text-white py-2 rounded-lg
+               hover:bg-blue-900 transition-all duration-200
+               disabled:opacity-60"
+  >
+    {status ? "Sending..." : "Send"}
+  </button>
+
+</div>
       </div>
-       <p>Total Emails in the File :{emailList.length}</p>
-       <button onClick={handleSend} className="bg-blue-950 text-white px-2 py-2 mt-2 rounded-md">{status?"sending...":"send"}</button>
-    </div>
-           <div className='bg-blue-500 text-white text-center py-26'>
+      
        
+
       </div>
+
       
       
      
        
-     </div>
-      <div className='bg-blue-800 text-white text-center py-16'>
-       
-      </div>
-      <div className='bg-blue-600 text-white text-center py-16'>
-       
-      </div>
+    
+    
+    </div>
+     
 
     </>
   )
