@@ -2,12 +2,20 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const nodemailer = require("nodemailer");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// Function to connect to MongoDB with retry
+const PORT = process.env.PORT || 5000;
+
+//  Check environment variables
+if (!process.env.MONGO_URI) {
+  console.error("❌ MONGO_URI is not defined! Add it in Render Environment Variables.");
+}
+
+
 const connectWithRetry = async (retries = 5, delay = 3000) => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
@@ -26,21 +34,32 @@ const connectWithRetry = async (retries = 5, delay = 3000) => {
   }
 };
 
-// Start the connection
+// Start the DB connection
 connectWithRetry();
 
-// Example of your schema
+
 const Credential = mongoose.model("credential", {}, "bulkemail");
 
-// Routes...
+
+
+// Health Check
+app.get("/health", (req, res) => {
+  res.send({ status: "OK", db: mongoose.connection.readyState });
+});
+
+// Send Bulk Emails
 app.post("/sendmail", async (req, res) => {
   try {
     const { msg, emailList } = req.body;
+
+    if (!emailList || !emailList.length) {
+      return res.status(400).send({ success: false, error: "Email list is empty" });
+    }
+
     const data = await Credential.find();
 
     if (!data.length) return res.status(400).send({ success: false, error: "No credentials found" });
 
-    const nodemailer = require("nodemailer");
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -49,22 +68,26 @@ app.post("/sendmail", async (req, res) => {
       },
     });
 
-    for (let i = 0; i < emailList.length; i++) {
-      await transporter.sendMail({
-        from: data[0].user,
-        to: emailList[i],
-        subject: "A message from bulkmail",
-        text: msg,
-      });
-      console.log("Email sent to:", emailList[i]);
-    }
+    // Send emails in parallel
+    await Promise.all(
+      emailList.map((email) =>
+        transporter.sendMail({
+          from: data[0].user,
+          to: email,
+          subject: "BulkMail Message",
+          text: msg,
+        }).then(() => console.log("Email sent to:", email))
+          .catch(err => console.error("Failed to send email to:", email, err.message))
+      )
+    );
 
-    res.send({ success: true });
+    res.send({ success: true, message: "Emails sent successfully" });
   } catch (error) {
-    console.error("SendMail error:", error);
+    console.error("SendMail error:", error.message);
     res.status(500).send({ success: false, error: error.message });
   }
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
