@@ -117,16 +117,24 @@ function App() {
       or click to browse
     </p>
   </label>
-  <div className="flex items-center gap-8 md:gap-0 mt-3 justify-evenly">
+  <div className=" flex items-center gap-8 md:gap-0 mt-3 justify-evenly">
    
   <p className="text-slate-600 text-sm ">
     Total Emails in the File : <span className="font-semibold">{emailList.length}</span>
 
   </p>
-  <p className="text-xs text-red-400">Note:<span className="text-gray-400 px-1">Support Excel Sheet Only.</span> 
-  <span className="text-gray-400 text-xs">📍Mail recieve in spam kind check</span></p>
+  <div className="items-center md:py-2  md:gap-1 md:flex flex-col "  >
+     <p className="text-xs text-red-400">Note:<span className="text-gray-400 px-1">Support Excel Sheet Only.</span> </p>
+  <p className="text-gray-400 text-xs hidden md:flex ">📍Mail recieve in spam kind check</p>
+  
+  
+  
 
   </div>
+   
+ 
+  </div>
+  <p className="text-gray-400 text-xs mt-3 md:hidden ">📍Mail recieve in spam kind check</p>
 
   
 

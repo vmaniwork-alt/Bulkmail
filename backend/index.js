@@ -26,14 +26,14 @@ if (!process.env.MONGO_URI) {
 const connectWithRetry = async (retries = 5, delay = 3000) => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ DB connected successfully!");
+    console.log(" DB connected successfully!");
   } catch (err) {
-    console.error("❌ DB connection failed:", err.message);
+    console.error(" DB connection failed:", err.message);
     if (retries > 0) {
       console.log(`🔁 Retrying in ${delay / 1000}s... (${retries} attempts left)`);
       setTimeout(() => connectWithRetry(retries - 1, delay), delay);
     } else {
-      console.error("❌ All retries exhausted. Could not connect to DB.");
+      console.error(" All retries exhausted. Could not connect to DB.");
       process.exit(1);
     }
   }
@@ -73,11 +73,11 @@ app.post("/sendmail", async (req, res) => {
           subject: "BulkMail Message",
           text: msg,
         });
-        console.log(`✅ Email sent to: ${email}`);
+        console.log(` Email sent to: ${email}`);
         results.push({ email, status: "sent" });
       } catch (err) {
         const errorMsg = err.response?.body || err.message;
-        console.error(`❌ Failed to send email to: ${email}`, errorMsg);
+        console.error(`Failed to send email to: ${email}`, errorMsg);
         results.push({ email, status: "failed", error: errorMsg });
       }
     }
