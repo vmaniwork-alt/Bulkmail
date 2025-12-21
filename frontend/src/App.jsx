@@ -36,7 +36,7 @@ function App() {
 
   const handleSend=()=>{
     setstatus(true)
-    axios.post("http://localhost:5000/sendmail",{msg:msg,emailList:emailList})
+    axios.post("https://bulkmail-dhqp.onrender.com/sendmail",{msg:msg,emailList:emailList})
    .then((response) => {
     // Assuming backend returns { success: true } on success
     if (response.data.success) {
