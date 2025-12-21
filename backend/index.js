@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 
 const app = express();
 app.use(express.json());
@@ -10,84 +10,87 @@ app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
-// Check environment variables
+// ---------- Validate environment ----------
+if (!process.env.SENDGRID_API_KEY || !process.env.EMAIL_FROM) {
+  console.error("❌ SendGrid API key or sender email not defined in .env!");
+  process.exit(1);
+}
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 if (!process.env.MONGO_URI) {
-  console.error("❌ MONGO_URI is not defined! Add it in Render Environment Variables.");
+  console.error("❌ MONGO_URI not defined in .env!");
+  process.exit(1);
 }
 
-
+// ---------- Connect to MongoDB ----------
 const connectWithRetry = async (retries = 5, delay = 3000) => {
   try {
-    await mongoose.connect(process.env.MONGO_URI); // no useNewUrlParser or useUnifiedTopology
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ DB connected successfully!");
   } catch (err) {
     console.error("❌ DB connection failed:", err.message);
     if (retries > 0) {
-      console.log(`🔁 Retrying in ${delay / 1000} seconds... (${retries} attempts left)`);
+      console.log(`🔁 Retrying in ${delay / 1000}s... (${retries} attempts left)`);
       setTimeout(() => connectWithRetry(retries - 1, delay), delay);
     } else {
       console.error("❌ All retries exhausted. Could not connect to DB.");
+      process.exit(1);
     }
   }
 };
-
-// Start the DB connection
 connectWithRetry();
 
-
-const Credential = mongoose.model("credential", {}, "bulkemail");
-
-
-
-// Health Check
+// ---------- Health Check ----------
 app.get("/health", (req, res) => {
   res.send({ status: "OK", db: mongoose.connection.readyState });
 });
 
-// Send Bulk Emails
+// ---------- Send Bulk Emails ----------
 app.post("/sendmail", async (req, res) => {
   try {
-    const { msg, emailList } = req.body;
+    let { msg, emailList } = req.body;
+
+    if (!msg || msg.trim().length === 0) {
+      return res.status(400).send({ success: false, error: "Message content is empty" });
+    }
 
     if (!emailList || !emailList.length) {
       return res.status(400).send({ success: false, error: "Email list is empty" });
     }
 
-    const data = await Credential.find();
+    // Ensure emailList is an array
+    if (!Array.isArray(emailList)) {
+      emailList = emailList.split(",").map(e => e.trim());
+    }
 
-    if (!data.length) return res.status(400).send({ success: false, error: "No credentials found" });
+    const results = [];
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: data[0].user,
-        pass: data[0].pass,
-      },
-    });
-
-    // Send emails in parallel
-    await Promise.all(
-      emailList.map((email) =>
-        transporter.sendMail({
-          from: data[0].user,
+    for (const email of emailList) {
+      try {
+        await sgMail.send({
           to: email,
+          from: process.env.EMAIL_FROM, // verified sender
           subject: "BulkMail Message",
           text: msg,
-        }).then(() => console.log("Email sent to:", email))
-          .catch(err => console.error("Failed to send email to:", email, err.message))
-      )
-    );
+        });
+        console.log(`✅ Email sent to: ${email}`);
+        results.push({ email, status: "sent" });
+      } catch (err) {
+        const errorMsg = err.response?.body || err.message;
+        console.error(`❌ Failed to send email to: ${email}`, errorMsg);
+        results.push({ email, status: "failed", error: errorMsg });
+      }
+    }
 
-    res.send({ success: true, message: "Emails sent successfully" });
+    res.send({ success: true, results });
+
   } catch (error) {
     console.error("SendMail error:", error.message);
     res.status(500).send({ success: false, error: error.message });
   }
 });
 
-
-// Start Server
-
+// ---------- Start Server ----------
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

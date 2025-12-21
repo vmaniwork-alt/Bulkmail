@@ -34,26 +34,39 @@ function App() {
   }
 
 
-  const handleSend=()=>{
-    setstatus(true)
-    axios.post("https://bulkmail-dhqp.onrender.com/sendmail",{msg:msg,emailList:emailList})
-   .then((response) => {
-    // Assuming backend returns { success: true } on success
-    if (response.data.success) {
-      alert("Email sent successfully");
-      setmsg("");          // Clear the message
-      setstatus(false);    // Reset sending status
-    } else {
-      alert("Failed to send: " + response.data.error);
-      setstatus(false);
-    }
-  })
-  .catch((error) => {
-    // Handles network/server errors
-    alert("Error sending emails: " + error.message);
-    setstatus(false);
+  const handleSend = () => {
+  if (!msg || msg.trim().length === 0) {
+    alert("Message cannot be empty!");
+    return;
   }
-  )}
+
+  if (!emailList || emailList.length === 0) {
+    alert("Email list cannot be empty!");
+    return;
+  }
+
+  setstatus(true);
+
+  // Ensure emailList is an array of strings
+  const emailsArray = Array.isArray(emailList)
+    ? emailList
+    : emailList.split(",").map(e => e.trim());
+
+  axios.post("http://localhost:5000/sendmail", { msg, emailList: emailsArray })
+    .then((response) => {
+      if (response.data.success) {
+        alert("Email sent successfully");
+        setmsg("");
+      } else {
+        alert("Failed to send: " + response.data.error);
+      }
+      setstatus(false);
+    })
+    .catch((error) => {
+      alert("Error sending emails: " + (error.response?.data?.error || error.message));
+      setstatus(false);
+    });
+};
 
   return (
     <>
