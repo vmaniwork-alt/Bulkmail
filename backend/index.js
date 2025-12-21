@@ -10,7 +10,7 @@ app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
-//  Check environment variables
+// Check environment variables
 if (!process.env.MONGO_URI) {
   console.error("❌ MONGO_URI is not defined! Add it in Render Environment Variables.");
 }
@@ -18,10 +18,7 @@ if (!process.env.MONGO_URI) {
 
 const connectWithRetry = async (retries = 5, delay = 3000) => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI); // no useNewUrlParser or useUnifiedTopology
     console.log("✅ DB connected successfully!");
   } catch (err) {
     console.error("❌ DB connection failed:", err.message);
@@ -87,7 +84,10 @@ app.post("/sendmail", async (req, res) => {
     res.status(500).send({ success: false, error: error.message });
   }
 });
+
+
 // Start Server
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
