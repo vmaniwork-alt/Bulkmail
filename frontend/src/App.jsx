@@ -52,7 +52,7 @@ function App() {
     ? emailList
     : emailList.split(",").map(e => e.trim());
 
-  axios.post("http://localhost:5000/sendmail", { msg, emailList: emailsArray })
+  axios.post("https://bulkmail-l634.onrender.com/sendmail", { msg, emailList: emailsArray })
     .then((response) => {
       if (response.data.success) {
         alert("Email sent successfully");
@@ -71,17 +71,17 @@ function App() {
   return (
     <>
     <div className="bg-gradient-to-b  from-[#cfe8f3] via-[#d7e6f2] to-[#e6dff2]  min-h-screen">
-      <div className="flex justify-start mx-36 items-center p-5">
+      <div className="md:flex justify-start mx-1 md:mx-36 items-center p-1 md:p-5">
       <div className=' text-indigo-900 '>
-        <h1 className="text-6xl font-bold px-5 py-3">BulkMail</h1>
+        <h1 className=" text-3xl md:text-6xl font-bold px-5 mt-5 md:mt-0  py-0 md:py-3">BulkMail</h1>
       </div>
-       <div className=' text-indigo-900 text-center items-center'>
-        <h1 className="text-xl font-medium px-5 py-3">We can help your bussiness we can send multiple emails at onces</h1>
+       <div className=' text-indigo-900 md:text-center items-center'>
+        <h1 className="text-sm md:text-xl font-medium px-5 md:px-5 py-3">We can help your bussiness we can send multiple emails at onces</h1>
       </div>
        </div>
      
-      <div className=" flex flex-col items-center text-black px-5 py-6 mt-6">
-        <textarea onChange={handleClick} value={msg} className="w-[80%] h-32 py-2 
+      <div className=" flex flex-col items-center text-black px-5 py-5 md:py-6  md:mt-6">
+        <textarea onChange={handleClick} value={msg} className="w-[100%] md:w-[80%] h-32 py-2 
         focus:outline-none focus:ring-2  focus:ring-indigo-500
          hover:border-indigo-700 focus:border-indigo-600 border-none 
         shadow-lg px-3 rounded-lg border" 
@@ -90,13 +90,13 @@ function App() {
            <div className='text-gray-600 text-center'>
         <h1 className="text-xl font-medium px-5 py-3">Drag and Drop</h1>
       </div>
-      <div className="bg-white w-[550px] p-6 rounded-xl shadow-lg">
+      <div className="bg-white md:w-[550px] p-6 rounded-xl shadow-lg">
 
   {/* Drag & Drop Box */}
   <label
     htmlFor="fileUpload"
     className="flex flex-col items-center justify-center
-               h-[170px] border-2 border-dashed border-blue-400
+               h-[170px]  border-2 border-dashed border-blue-400
                rounded-xl cursor-pointer
                hover:border-blue-600 hover:bg-blue-50
                transition-all duration-200"
@@ -117,13 +117,14 @@ function App() {
       or click to browse
     </p>
   </label>
-  <div className="flex items-center mt-3 justify-evenly">
+  <div className="flex items-center gap-8 md:gap-0 mt-3 justify-evenly">
    
   <p className="text-slate-600 text-sm ">
     Total Emails in the File : <span className="font-semibold">{emailList.length}</span>
 
   </p>
-  <p className="text-xs text-red-400">Note:<span className="text-gray-400 px-1">Support Excel Sheet Only </span> </p>
+  <p className="text-xs text-red-400">Note:<span className="text-gray-400 px-1">Support Excel Sheet Only.</span> 
+  <span className="text-gray-400 text-xs">📍Mail recieve in spam kind check</span></p>
 
   </div>
 
@@ -133,7 +134,7 @@ function App() {
   <button
     onClick={handleSend}
     disabled={status}
-    className="mt-4 w-full bg-blue-950 text-white py-2 rounded-lg
+    className=" mt-6 md:mt-4 w-full bg-blue-950 text-white py-2 rounded-lg
                hover:bg-blue-900 transition-all duration-200
                disabled:opacity-60"
   >
