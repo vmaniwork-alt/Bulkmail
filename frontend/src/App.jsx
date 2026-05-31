@@ -52,7 +52,7 @@ function App() {
     ? emailList
     : emailList.split(",").map(e => e.trim());
 
-  axios.post("https://bulkmail-l634.onrender.com/sendmail", { msg, emailList: emailsArray })
+  axios.post("https://bulkmail-uqnz.onrender.com/sendmail", { msg, emailList: emailsArray })
     .then((response) => {
       if (response.data.success) {
         alert("Email sent successfully");
